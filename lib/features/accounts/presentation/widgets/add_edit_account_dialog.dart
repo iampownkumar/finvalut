@@ -71,10 +71,12 @@ class _AddEditAccountDialogState extends State<AddEditAccountDialog> {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 500),
+        child: Container(
+      constraints: const BoxConstraints(maxWidth: 500, maxHeight: 700),
+      child: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(24),
+          padding: EdgeInsets.fromLTRB(
+              24, 24, 24, 24 + MediaQuery.of(context).viewInsets.bottom),
           child: Form(
             key: _formKey,
             child: Column(
@@ -279,7 +281,7 @@ class _AddEditAccountDialogState extends State<AddEditAccountDialog> {
           ),
         ),
       ),
-    );
+    ));
   }
 
   void _saveAccount() {

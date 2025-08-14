@@ -3,13 +3,16 @@ import 'package:fl_chart/fl_chart.dart';
 import '../../../../core/services/analytics_service.dart';
 import '../../../../core/utils/currency_utils.dart';
 import '../../../../core/utils/date_utils.dart';
+import '../../../../core/services/transaction_service.dart';
 import '../../../../shared/widgets/charts/animated_pie_chart.dart';
 import '../../../../shared/widgets/charts/line_chart_widget.dart';
 import '../../../../shared/widgets/charts/bar_chart_widget.dart';
 import '../widgets/stats_card.dart';
 
 class AnalyticsPage extends StatefulWidget {
-  const AnalyticsPage({super.key});
+  final int? initialTab; // 0: Overview, 1: Categories, 2: Trends
+  final String? initialFocus; // 'income' or 'expense'
+  const AnalyticsPage({super.key, this.initialTab, this.initialFocus});
 
   @override
   State<AnalyticsPage> createState() => _AnalyticsPageState();
@@ -18,6 +21,8 @@ class AnalyticsPage extends StatefulWidget {
 class _AnalyticsPageState extends State<AnalyticsPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  bool _openedInitialFocus = false;
+  bool _isBottomSheetOpen = false;
 
   Map<String, double> categoryExpenses = {};
   Map<String, double> monthlyTrends = {};
@@ -29,6 +34,9 @@ class _AnalyticsPageState extends State<AnalyticsPage>
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
+    if (widget.initialTab != null && widget.initialTab! >= 0 && widget.initialTab! < 3) {
+      _tabController.index = widget.initialTab!;
+    }
     _loadAnalyticsData();
   }
 
@@ -49,10 +57,21 @@ class _AnalyticsPageState extends State<AnalyticsPage>
         dailyExpenses = daily as List<Map<String, dynamic>>;
         isLoading = false;
       });
+
+      // Auto-open details if requested from Home (income/expense)
+      if (mounted && !_openedInitialFocus &&
+          (widget.initialFocus == 'income' || widget.initialFocus == 'expense')) {
+        _openedInitialFocus = true;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _showTypeDetails(context, widget.initialFocus!);
+        });
+      }
     } catch (e) {
       setState(() => isLoading = false);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
+        final messenger = ScaffoldMessenger.of(context);
+        messenger.removeCurrentSnackBar();
+        messenger.showSnackBar(
           SnackBar(content: Text('Error loading analytics: $e')),
         );
       }
@@ -130,6 +149,7 @@ class _AnalyticsPageState extends State<AnalyticsPage>
                   icon: Icons.trending_up,
                   color: Colors.green,
                   growth: growth['income'],
+                  onTap: () => Future.microtask(() => _showTypeDetails(context, 'income')),
                 ),
                 StatsCard(
                   title: 'This Month Expense',
@@ -137,6 +157,7 @@ class _AnalyticsPageState extends State<AnalyticsPage>
                   icon: Icons.trending_down,
                   color: Colors.red,
                   growth: growth['expense'],
+                  onTap: () => Future.microtask(() => _showTypeDetails(context, 'expense')),
                 ),
                 StatsCard(
                   title: 'Net Income',
@@ -405,6 +426,177 @@ class _AnalyticsPageState extends State<AnalyticsPage>
         ],
       ),
     );
+  }
+
+  Future<void> _showTypeDetails(BuildContext context, String type) async {
+    if (_isBottomSheetOpen) return;
+    _isBottomSheetOpen = true;
+
+    final categoryTotals =
+        await TransactionService.instance.getCurrentMonthCategoryTotals(type);
+    final transactions = await TransactionService.instance
+        .getTransactionsByTypeForCurrentMonth(type);
+
+    if (!mounted) {
+      _isBottomSheetOpen = false;
+      return;
+    }
+
+    await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (ctx) {
+        return DraggableScrollableSheet(
+          expand: false,
+          initialChildSize: 0.8,
+          minChildSize: 0.5,
+          maxChildSize: 0.95,
+          builder: (context, scrollController) {
+            return Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    children: [
+                      Icon(
+                        type == 'income'
+                            ? Icons.trending_up
+                            : Icons.trending_down,
+                        color: type == 'income' ? Colors.green : Colors.red,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        type == 'income'
+                            ? 'This Month Income'
+                            : 'This Month Expense',
+                        style: Theme.of(context).textTheme.titleLarge,
+                      ),
+                      const Spacer(),
+                      IconButton(
+                        icon: const Icon(Icons.close),
+                        onPressed: () => Navigator.of(context).pop(),
+                      ),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: ListView(
+                    controller: scrollController,
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    children: [
+                      if (categoryTotals.isNotEmpty) ...[
+                        Text(
+                          'By Category',
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleMedium
+                              ?.copyWith(fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 8),
+                        ...categoryTotals.entries.map(
+                          (e) => ListTile(
+                            leading: CircleAvatar(
+                              backgroundColor: (type == 'income'
+                                      ? Colors.green
+                                      : Colors.red)
+                                  .withOpacity(0.1),
+                              child: Icon(
+                                Icons.category,
+                                color: type == 'income'
+                                    ? Colors.green
+                                    : Colors.red,
+                              ),
+                            ),
+                            title: Text(e.key),
+                            trailing: Text(
+                              CurrencyUtils.formatAmount(e.value),
+                              style: TextStyle(
+                                color: type == 'income'
+                                    ? Colors.green
+                                    : Colors.red,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                      ],
+                      Text(
+                        'Transactions',
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleMedium
+                            ?.copyWith(fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 8),
+                      ...transactions.map(
+                        (t) => Card(
+                          child: ListTile(
+                            leading: CircleAvatar(
+                              backgroundColor: (type == 'income'
+                                      ? Colors.green
+                                      : Colors.red)
+                                  .withOpacity(0.1),
+                              child: Icon(
+                                _getCategoryIcon(t.categoryIcon),
+                                color: type == 'income'
+                                    ? Colors.green
+                                    : Colors.red,
+                                size: 18,
+                              ),
+                            ),
+                            title: Text(
+                              t.description ??
+                                  t.categoryName ??
+                                  'Transaction',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            subtitle: Text(AppDateUtils.formatDate(t.date)),
+                            trailing: Text(
+                              '${type == 'expense' ? '-' : '+'}${CurrencyUtils.formatAmount(t.amount)}',
+                              style: TextStyle(
+                                color: type == 'income'
+                                    ? Colors.green
+                                    : Colors.red,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                    ],
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+
+    _isBottomSheetOpen = false;
+  }
+
+  IconData _getCategoryIcon(String? icon) {
+    switch (icon) {
+      case 'restaurant':
+        return Icons.restaurant;
+      case 'directions_car':
+        return Icons.directions_car;
+      case 'shopping_bag':
+        return Icons.shopping_bag;
+      case 'work':
+        return Icons.work;
+      case 'movie':
+        return Icons.movie;
+      default:
+        return Icons.category;
+    }
   }
 
   double _getAverageDailyExpense() {

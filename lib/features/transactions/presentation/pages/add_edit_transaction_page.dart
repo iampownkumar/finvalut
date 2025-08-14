@@ -8,6 +8,7 @@ import 'package:finvault/core/services/transaction_service.dart';
 import 'package:finvault/core/services/account_service.dart';
 import 'package:finvault/core/services/category_service.dart';
 import 'package:finvault/core/utils/currency_utils.dart';
+import 'package:go_router/go_router.dart';
 
 class AddEditTransactionPage extends StatefulWidget {
   final Transaction? transaction;
@@ -499,8 +500,13 @@ class _AddEditTransactionPageState extends State<AddEditTransactionPage> {
     // Close keyboard if open
     FocusScope.of(context).unfocus();
 
-    // Pop back to previous screen
-    Navigator.of(context).pop();
+    // Pop back to previous screen if possible, else route to home
+    final navigator = Navigator.of(context);
+    if (navigator.canPop()) {
+      navigator.pop();
+    } else {
+      if (mounted) context.go('/home');
+    }
   }
 
   void _saveTransaction() async {
@@ -543,8 +549,13 @@ class _AddEditTransactionPageState extends State<AddEditTransactionPage> {
             ),
           );
 
-          // Close and signal success to previous screen
-          Navigator.of(context).pop(true);
+          // Close and signal success to previous screen or route to home if not possible
+          final navigator = Navigator.of(context);
+          if (navigator.canPop()) {
+            navigator.pop(true);
+          } else {
+            context.go('/home');
+          }
         }
       } catch (e) {
         if (mounted) {
@@ -594,8 +605,13 @@ class _AddEditTransactionPageState extends State<AddEditTransactionPage> {
             ),
           );
 
-          // Close and signal success to previous screen
-          Navigator.of(context).pop(true);
+          // Close and signal success to previous screen or route to home if not possible
+          final navigator = Navigator.of(context);
+          if (navigator.canPop()) {
+            navigator.pop(true);
+          } else {
+            context.go('/home');
+          }
         }
       } catch (e) {
         if (mounted) {

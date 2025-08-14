@@ -6,6 +6,8 @@ import 'package:finvault/core/services/account_service.dart';
 import 'package:finvault/core/services/transaction_service.dart';
 import 'package:finvault/features/transactions/presentation/pages/add_edit_transaction_page.dart';
 import 'package:finvault/core/utils/currency_utils.dart';
+import 'package:provider/provider.dart';
+import 'package:finvault/core/providers/theme_provider.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -57,9 +59,25 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         title: const Text('FinVault'),
         actions: [
+          Consumer<ThemeProvider>(
+            builder: (context, themeProvider, _) {
+              final isDark = themeProvider.themeMode == ThemeMode.dark;
+              return IconButton(
+                icon: Icon(isDark ? Icons.light_mode : Icons.dark_mode),
+                tooltip: isDark ? 'Switch to Light' : 'Switch to Dark',
+                onPressed: () => themeProvider
+                    .setThemeMode(isDark ? ThemeMode.light : ThemeMode.dark),
+              );
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: _loadData,
+          ),
+          IconButton(
+            icon: const Icon(Icons.more_horiz),
+            tooltip: 'More',
+            onPressed: () => context.go('/more'),
           ),
         ],
       ),
@@ -78,7 +96,9 @@ class _HomePageState extends State<HomePage> {
                     _QuickStats(
                         stats: monthlyStats, accountCount: accounts.length),
                     const SizedBox(height: 20),
-                    _QuickActions(onTransactionAdded: () { _loadData(); }),
+                    _QuickActions(onTransactionAdded: () {
+                      _loadData();
+                    }),
                     const SizedBox(height: 20),
                     _RecentTransactions(
                       transactions: recentTransactions,
@@ -103,62 +123,66 @@ class _BalanceCard extends StatelessWidget {
         accounts.fold(0.0, (sum, account) => sum + account.balance);
 
     return Card(
-      child: Container(
-        width: double.infinity,
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              Theme.of(context).colorScheme.primary,
-              Theme.of(context).colorScheme.primary.withOpacity(0.8),
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Total Balance',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Colors.white.withOpacity(0.9),
-                  ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              CurrencyUtils.formatAmount(totalBalance),
-              style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
-            ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: _BalanceItem(
-                    label: 'Accounts',
-                    value: '${accounts.length}',
-                    icon: Icons.account_balance_wallet,
-                  ),
-                ),
-                Container(
-                  width: 1,
-                  height: 40,
-                  color: Colors.white.withOpacity(0.3),
-                ),
-                Expanded(
-                  child: _BalanceItem(
-                    label: 'Active',
-                    value: '${accounts.where((a) => a.isActive).length}',
-                    icon: Icons.check_circle,
-                  ),
-                ),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: () => context.push('/accounts'),
+        child: Container(
+          width: double.infinity,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                Theme.of(context).colorScheme.primary,
+                Theme.of(context).colorScheme.primary.withOpacity(0.8),
               ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
             ),
-          ],
+            borderRadius: BorderRadius.circular(12),
+          ),
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Total Balance',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Colors.white.withOpacity(0.9),
+                    ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                CurrencyUtils.formatAmount(totalBalance),
+                style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(
+                    child: _BalanceItem(
+                      label: 'Accounts',
+                      value: '${accounts.length}',
+                      icon: Icons.account_balance_wallet,
+                    ),
+                  ),
+                  Container(
+                    width: 1,
+                    height: 40,
+                    color: Colors.white.withOpacity(0.3),
+                  ),
+                  Expanded(
+                    child: _BalanceItem(
+                      label: 'Active',
+                      value: '${accounts.where((a) => a.isActive).length}',
+                      icon: Icons.check_circle,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -231,31 +255,46 @@ class _QuickStats extends StatelessWidget {
         Row(
           children: [
             Expanded(
-              child: _StatCard(
-                title: 'Income',
-                amount: income,
-                icon: Icons.trending_up,
-                color: Colors.green,
+              child: InkWell(
+                borderRadius: BorderRadius.circular(12),
+                onTap: () => context.push('/analytics',
+                    extra: {'initialTab': 0, 'focus': 'income'}),
+                child: _StatCard(
+                  title: 'Income',
+                  amount: income,
+                  icon: Icons.trending_up,
+                  color: Colors.green,
+                ),
               ),
             ),
             const SizedBox(width: 12),
             Expanded(
-              child: _StatCard(
-                title: 'Expense',
-                amount: expense,
-                icon: Icons.trending_down,
-                color: Colors.red,
+              child: InkWell(
+                borderRadius: BorderRadius.circular(12),
+                onTap: () => context.push('/analytics',
+                    extra: {'initialTab': 0, 'focus': 'expense'}),
+                child: _StatCard(
+                  title: 'Expense',
+                  amount: expense,
+                  icon: Icons.trending_down,
+                  color: Colors.red,
+                ),
               ),
             ),
           ],
         ),
         const SizedBox(height: 12),
-        _StatCard(
-          title: 'Net Income',
-          amount: net,
-          icon: net >= 0 ? Icons.arrow_upward : Icons.arrow_downward,
-          color: net >= 0 ? Colors.green : Colors.red,
-          isWide: true,
+        InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: () => context
+              .push('/analytics', extra: {'initialTab': 0, 'focus': 'net'}),
+          child: _StatCard(
+            title: 'Net Income',
+            amount: net,
+            icon: net >= 0 ? Icons.arrow_upward : Icons.arrow_downward,
+            color: net >= 0 ? Colors.green : Colors.red,
+            isWide: true,
+          ),
         ),
       ],
     );
@@ -380,7 +419,8 @@ class _QuickActions extends StatelessWidget {
     );
   }
 
-  Future<void> _navigateToAddTransaction(BuildContext context, String type) async {
+  Future<void> _navigateToAddTransaction(
+      BuildContext context, String type) async {
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
@@ -456,7 +496,7 @@ class _RecentTransactions extends StatelessWidget {
               style: Theme.of(context).textTheme.headlineMedium,
             ),
             TextButton(
-              onPressed: () => context.go('/transactions'), // Fixed route
+              onPressed: () => context.push('/transactions'),
               child: const Text('View All'),
             ),
           ],

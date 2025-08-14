@@ -5,6 +5,10 @@ class AppStateProvider extends ChangeNotifier {
   bool _isLoading = false;
   String? _error;
 
+  // Global data version to notify listeners to refresh data-bound screens
+  int _dataVersion = 0;
+  int get dataVersion => _dataVersion;
+
   int get currentBottomNavIndex => _currentBottomNavIndex;
   bool get isLoading => _isLoading;
   String? get error => _error;
@@ -26,6 +30,12 @@ class AppStateProvider extends ChangeNotifier {
 
   void clearError() {
     _error = null;
+    notifyListeners();
+  }
+
+  // Call this after any data mutation (e.g., adding/updating/deleting transactions)
+  void bumpDataVersion() {
+    _dataVersion++;
     notifyListeners();
   }
 }

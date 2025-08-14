@@ -1,8 +1,6 @@
 import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
 
-import 'package:finvault/features/splash/presentation/pages/splash_page.dart';
-import 'package:finvault/features/onboarding/presentation/pages/welcome_page.dart';
 import 'package:finvault/features/home/presentation/pages/home_page.dart';
 import 'package:finvault/features/accounts/presentation/pages/accounts_page.dart';
 import 'package:finvault/features/accounts/presentation/pages/account_details_page.dart';
@@ -18,7 +16,7 @@ import 'package:finvault/features/settings/presentation/pages/settings_page.dart
 
 class AppRouter {
   static final GoRouter router = GoRouter(
-    initialLocation: '/splash', // Start with splash screen
+    initialLocation: '/home',
     errorBuilder: (context, state) => Scaffold(
       appBar: AppBar(title: const Text('Page Not Found')),
       body: Center(
@@ -46,19 +44,7 @@ class AppRouter {
       ),
     ),
     routes: [
-      // Splash Screen (outside shell - full screen)
-      GoRoute(
-        path: '/splash',
-        name: 'splash',
-        builder: (context, state) => const SplashPage(),
-      ),
-
-      // Welcome Screen (outside shell - full screen)
-      GoRoute(
-        path: '/welcome',
-        name: 'welcome',
-        builder: (context, state) => const WelcomePage(),
-      ),
+      // Removed splash and welcome routes
 
       // Main app routes (inside shell with bottom navigation)
       ShellRoute(
@@ -89,7 +75,20 @@ class AppRouter {
           GoRoute(
             path: '/analytics',
             name: 'analytics',
-            builder: (context, state) => const AnalyticsPage(),
+            builder: (context, state) {
+              final extra = state.extra;
+              int? initialTab;
+              String? initialFocus;
+              if (extra is Map) {
+                if (extra['initialTab'] is int) {
+                  initialTab = extra['initialTab'] as int;
+                }
+                if (extra['focus'] is String) {
+                  initialFocus = extra['focus'] as String;
+                }
+              }
+              return AnalyticsPage(initialTab: initialTab, initialFocus: initialFocus);
+            },
           ),
           GoRoute(
             path: '/loans',

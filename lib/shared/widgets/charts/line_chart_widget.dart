@@ -124,7 +124,9 @@ class _LineChartWidgetState extends State<LineChartWidget>
                     ),
                   ),
                   minX: 0,
-                  maxX: (widget.xLabels.length - 1).toDouble(),
+                  maxX: widget.xLabels.isNotEmpty
+                      ? (widget.xLabels.length - 1).toDouble()
+                      : 0,
                   minY: 0,
                   maxY: _getMaxY(),
                   lineBarsData: [
@@ -266,12 +268,16 @@ class _LineChartWidgetState extends State<LineChartWidget>
         ? widget.expenseData.map((e) => e.y).reduce((a, b) => a > b ? a : b)
         : 0;
 
-    final max = maxIncome > maxExpense ? maxIncome : maxExpense;
-    return max * 1.2; // Add 20% padding
+    final maxVal = maxIncome > maxExpense ? maxIncome : maxExpense;
+    final padded = maxVal * 1.2; // Add 20% padding
+    // Ensure a positive maxY to avoid zero intervals when data is empty
+    return padded > 0 ? padded : 1.0;
   }
 
   double _getHorizontalInterval() {
     final maxY = _getMaxY();
-    return maxY / 5; // 5 horizontal lines
+    final interval = maxY / 5; // 5 horizontal lines
+    // fl_chart requires a positive non-zero interval
+    return interval > 0 ? interval : 1.0;
   }
 }

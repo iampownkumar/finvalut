@@ -157,4 +157,45 @@ class TransactionService {
       'net': income - expense,
     };
   }
+
+  Future<List<Transaction>> getTransactionsByTypeForCurrentMonth(String type) async {
+    final db = await DatabaseHelper.instance.database;
+    final now = DateTime.now();
+    final startOfMonth = DateTime(now.year, now.month, 1).toIso8601String();
+
+    final maps = await db.rawQuery('''
+      SELECT t.*, a.name as accountName, c.name as categoryName,
+             c.icon as categoryIcon, c.color as categoryColor
+      FROM transactions t
+      LEFT JOIN accounts a ON t.accountId = a.id
+      LEFT JOIN categories c ON t.categoryId = c.id
+      WHERE t.type = ? AND t.date >= ?
+      ORDER BY t.date DESC, t.createdAt DESC
+    ''', [type, startOfMonth]);
+
+    return maps.map((map) => Transaction.fromMap(map)).toList();
+  }
+
+  Future<Map<String, double>> getCurrentMonthCategoryTotals(String type) async {
+    final db = await DatabaseHelper.instance.database;
+    final now = DateTime.now();
+    final startOfMonth = DateTime(now.year, now.month, 1).toIso8601String();
+
+    final rows = await db.rawQuery('''
+      SELECT c.name as categoryName, SUM(t.amount) as total
+      FROM transactions t
+      LEFT JOIN categories c ON t.categoryId = c.id
+      WHERE t.type = ? AND t.date >= ?
+      GROUP BY c.name
+      ORDER BY total DESC
+    ''', [type, startOfMonth]);
+
+    final Map<String, double> result = {};
+    for (final row in rows) {
+      final name = (row['categoryName'] as String?) ?? 'Unknown';
+      final total = (row['total'] as num?)?.toDouble() ?? 0.0;
+      result[name] = total;
+    }
+    return result;
+  }
 }

@@ -59,6 +59,22 @@ class MorePage extends StatelessWidget {
                 ),
                 const Divider(height: 1),
                 ListTile(
+                  leading: const Icon(Icons.dark_mode),
+                  title: const Text('Dark Mode'),
+                  trailing: Consumer<ThemeProvider>(
+                    builder: (context, themeProvider, _) {
+                      final isDark = themeProvider.themeMode == ThemeMode.dark;
+                      return Switch(
+                        value: isDark,
+                        onChanged: (value) => themeProvider.setThemeMode(
+                          value ? ThemeMode.dark : ThemeMode.light,
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                const Divider(height: 1),
+                ListTile(
                   leading: const Icon(Icons.settings),
                   title: const Text('Settings'),
                   subtitle: const Text('Theme, currency and preferences'),
