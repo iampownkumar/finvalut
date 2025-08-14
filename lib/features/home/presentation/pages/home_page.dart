@@ -449,7 +449,7 @@ class _RecentTransactions extends StatelessWidget {
               style: Theme.of(context).textTheme.headlineMedium,
             ),
             TextButton(
-              onPressed: () => context.go('/transactions'),
+              onPressed: () => context.go('/transactions'), // Fixed route
               child: const Text('View All'),
             ),
           ],

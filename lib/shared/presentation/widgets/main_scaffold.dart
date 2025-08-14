@@ -73,13 +73,13 @@ class MainScaffold extends StatelessWidget {
   void _navigateToPage(BuildContext context, int index) {
     switch (index) {
       case 0:
-        context.go('/home');
+        context.go('/home'); // Make sure this matches your route
         break;
       case 1:
         context.go('/accounts');
         break;
       case 2:
-        context.go('/analytics'); // Changed from categories
+        context.go('/analytics');
         break;
       case 3:
         context.go('/credit-cards');

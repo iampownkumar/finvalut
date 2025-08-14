@@ -1,18 +1,46 @@
 import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
 
-import '../../features/home/presentation/pages/home_page.dart';
-import '../../features/accounts/presentation/pages/accounts_page.dart';
-import '../../features/categories/presentation/pages/categories_page.dart';
-import '../../features/credit_cards/presentation/pages/credit_cards_page.dart';
-import '../../features/more/presentation/pages/more_page.dart';
-import '../../features/analytics/presentation/pages/analytics_page.dart'; // Add this
-import '../../features/transactions/presentation/pages/add_edit_transaction_page.dart';
-import '../../shared/presentation/widgets/main_scaffold.dart';
+import 'package:finvault/features/home/presentation/pages/home_page.dart';
+import 'package:finvault/features/accounts/presentation/pages/accounts_page.dart';
+import 'package:finvault/features/categories/presentation/pages/categories_page.dart';
+import 'package:finvault/features/credit_cards/presentation/pages/credit_cards_page.dart';
+import 'package:finvault/features/analytics/presentation/pages/analytics_page.dart';
+import 'package:finvault/features/more/presentation/pages/more_page.dart';
+import 'package:finvault/features/transactions/presentation/pages/add_edit_transaction_page.dart';
+import 'package:finvault/features/transactions/presentation/pages/transactions_list_page.dart';
+import 'package:finvault/shared/presentation/widgets/main_scaffold.dart';
 
 class AppRouter {
   static final GoRouter router = GoRouter(
     initialLocation: '/home',
+    // Add error handling for unknown routes
+    errorBuilder: (context, state) => Scaffold(
+      appBar: AppBar(title: const Text('Page Not Found')),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.error_outline, size: 64, color: Colors.red),
+            const SizedBox(height: 16),
+            Text(
+              'Page Not Found',
+              style: Theme.of(context).textTheme.headlineMedium,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'The page "${state.uri.toString()}" does not exist.',
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton(
+              onPressed: () => context.go('/home'),
+              child: const Text('Go Home'),
+            ),
+          ],
+        ),
+      ),
+    ),
     routes: [
       ShellRoute(
         builder: (context, state, child) {
@@ -40,7 +68,7 @@ class AppRouter {
             builder: (context, state) => const CreditCardsPage(),
           ),
           GoRoute(
-            path: '/analytics', // Add this route
+            path: '/analytics',
             name: 'analytics',
             builder: (context, state) => const AnalyticsPage(),
           ),
@@ -48,6 +76,13 @@ class AppRouter {
             path: '/more',
             name: 'more',
             builder: (context, state) => const MorePage(),
+          ),
+          // ADD MISSING TRANSACTIONS ROUTE
+          GoRoute(
+            path: '/transactions',
+            name: 'transactions',
+            builder: (context, state) =>
+                const TransactionsListPage(), // We'll create this
           ),
         ],
       ),
@@ -61,6 +96,8 @@ class AppRouter {
         path: '/transaction/edit/:id',
         name: 'edit-transaction',
         builder: (context, state) {
+          final transactionId = state.pathParameters['id'];
+          // TODO: Load transaction by ID and pass to edit page
           return const AddEditTransactionPage();
         },
       ),

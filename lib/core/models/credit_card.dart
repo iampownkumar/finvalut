@@ -1,16 +1,16 @@
 class CreditCard {
   final String id;
   final String bankName;
-  final String cardNumber; // Last 4 digits only for security
+  final String cardNumber; // typically masked (e.g., ****1234)
   final double cardLimit;
   final double usedAmount;
-  final int billDate; // Day of month (1-31)
-  final int paymentDate; // Day of month (1-31)
+  final int billDate; // day of month 1-31
+  final int paymentDate; // day of month 1-31
   final bool isActive;
   final DateTime createdAt;
   final DateTime updatedAt;
 
-  CreditCard({
+  const CreditCard({
     required this.id,
     required this.bankName,
     required this.cardNumber,
@@ -23,25 +23,24 @@ class CreditCard {
     required this.updatedAt,
   });
 
-  double get availableLimit => cardLimit - usedAmount;
-  double get utilizationPercentage =>
-      cardLimit > 0 ? (usedAmount / cardLimit) * 100 : 0;
-
+  // Computed helpers
+  double get availableLimit => (cardLimit - usedAmount) < 0 ? 0 : (cardLimit - usedAmount);
+  double get utilizationPercentage => cardLimit > 0 ? (usedAmount / cardLimit) * 100.0 : 0.0;
   bool get isOverLimit => usedAmount > cardLimit;
-  bool get isNearLimit => utilizationPercentage >= 80;
+  bool get isNearLimit => !isOverLimit && cardLimit > 0 && (usedAmount / cardLimit) >= 0.8;
 
   factory CreditCard.fromMap(Map<String, dynamic> map) {
     return CreditCard(
-      id: map['id'],
-      bankName: map['bankName'],
-      cardNumber: map['cardNumber'],
-      cardLimit: map['cardLimit'].toDouble(),
-      usedAmount: map['usedAmount'].toDouble(),
-      billDate: map['billDate'],
-      paymentDate: map['paymentDate'],
-      isActive: map['isActive'] == 1,
-      createdAt: DateTime.parse(map['createdAt']),
-      updatedAt: DateTime.parse(map['updatedAt']),
+      id: map['id'] as String,
+      bankName: map['bankName'] as String,
+      cardNumber: map['cardNumber'] as String,
+      cardLimit: (map['cardLimit'] as num).toDouble(),
+      usedAmount: (map['usedAmount'] as num).toDouble(),
+      billDate: (map['billDate'] as num).toInt(),
+      paymentDate: (map['paymentDate'] as num).toInt(),
+      isActive: (map['isActive'] as num) == 1,
+      createdAt: DateTime.parse(map['createdAt'] as String),
+      updatedAt: DateTime.parse(map['updatedAt'] as String),
     );
   }
 

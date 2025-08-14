@@ -1,5 +1,5 @@
-import '../database/database_helper.dart';
-import '../models/credit_card.dart';
+import 'package:finvault/core/database/database_helper.dart';
+import 'package:finvault/core/models/credit_card.dart';
 import 'package:uuid/uuid.dart';
 
 class CreditCardService {
@@ -16,49 +16,42 @@ class CreditCardService {
       whereArgs: [1],
       orderBy: 'createdAt DESC',
     );
-    return maps.map((map) => CreditCard.fromMap(map)).toList();
+    return maps.map((e) => CreditCard.fromMap(e)).toList();
   }
 
   Future<CreditCard?> getCreditCardById(String id) async {
     final db = await DatabaseHelper.instance.database;
-    final maps = await db.query(
-      'credit_cards',
-      where: 'id = ?',
-      whereArgs: [id],
-    );
-    if (maps.isNotEmpty) {
-      return CreditCard.fromMap(maps.first);
-    }
+    final maps = await db.query('credit_cards', where: 'id = ?', whereArgs: [id]);
+    if (maps.isNotEmpty) return CreditCard.fromMap(maps.first);
     return null;
   }
 
-  Future<String> createCreditCard(CreditCard creditCard) async {
+  Future<String> createCreditCard(CreditCard card) async {
     final db = await DatabaseHelper.instance.database;
     final id = _uuid.v4();
-    final cardWithId = CreditCard(
+    final withId = CreditCard(
       id: id,
-      bankName: creditCard.bankName,
-      cardNumber: creditCard.cardNumber,
-      cardLimit: creditCard.cardLimit,
-      usedAmount: creditCard.usedAmount,
-      billDate: creditCard.billDate,
-      paymentDate: creditCard.paymentDate,
+      bankName: card.bankName,
+      cardNumber: card.cardNumber,
+      cardLimit: card.cardLimit,
+      usedAmount: card.usedAmount,
+      billDate: card.billDate,
+      paymentDate: card.paymentDate,
       isActive: true,
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
     );
-
-    await db.insert('credit_cards', cardWithId.toMap());
+    await db.insert('credit_cards', withId.toMap());
     return id;
   }
 
-  Future<void> updateCreditCard(CreditCard creditCard) async {
+  Future<void> updateCreditCard(CreditCard card) async {
     final db = await DatabaseHelper.instance.database;
     await db.update(
       'credit_cards',
-      creditCard.toMap(),
+      card.toMap(),
       where: 'id = ?',
-      whereArgs: [creditCard.id],
+      whereArgs: [card.id],
     );
   }
 
@@ -66,55 +59,33 @@ class CreditCardService {
     final db = await DatabaseHelper.instance.database;
     await db.update(
       'credit_cards',
-      {'isActive': 0, 'updatedAt': DateTime.now().toIso8601String()},
+      {
+        'isActive': 0,
+        'updatedAt': DateTime.now().toIso8601String(),
+      },
       where: 'id = ?',
       whereArgs: [id],
     );
   }
 
-  Future<void> updateUsedAmount(String cardId, double newUsedAmount) async {
-    final db = await DatabaseHelper.instance.database;
-    await db.update(
-      'credit_cards',
-      {
-        'usedAmount': newUsedAmount,
-        'updatedAt': DateTime.now().toIso8601String(),
-      },
-      where: 'id = ?',
-      whereArgs: [cardId],
-    );
-  }
-
   Future<Map<String, double>> getCreditCardStats() async {
     final cards = await getAllCreditCards();
-
     double totalLimit = 0;
     double totalUsed = 0;
-    int overLimitCards = 0;
-    int nearLimitCards = 0;
 
-    for (final card in cards) {
-      totalLimit += card.cardLimit;
-      totalUsed += card.usedAmount;
-
-      if (card.isOverLimit) overLimitCards++;
-      if (card.isNearLimit) nearLimitCards++;
+    for (final c in cards) {
+      totalLimit += c.cardLimit;
+      totalUsed += c.usedAmount;
     }
+
+    final available = (totalLimit - totalUsed).clamp(0.0, double.infinity);
+    final utilization = totalLimit > 0 ? (totalUsed / totalLimit) * 100.0 : 0.0;
 
     return {
       'totalLimit': totalLimit,
       'totalUsed': totalUsed,
-      'availableLimit': totalLimit - totalUsed,
-      'utilizationPercentage':
-          totalLimit > 0 ? (totalUsed / totalLimit) * 100 : 0,
-      'overLimitCards': overLimitCards.toDouble(),
-      'nearLimitCards': nearLimitCards.toDouble(),
-      'totalCards': cards.length.toDouble(),
+      'availableLimit': available,
+      'utilizationPercentage': utilization,
     };
-  }
-
-  Future<List<CreditCard>> getCardsNearLimit() async {
-    final cards = await getAllCreditCards();
-    return cards.where((card) => card.isNearLimit || card.isOverLimit).toList();
   }
 }
