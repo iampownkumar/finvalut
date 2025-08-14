@@ -38,9 +38,9 @@ class MainScaffold extends StatelessWidget {
                 label: 'Accounts',
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.analytics_outlined), // Changed this
-                activeIcon: Icon(Icons.analytics), // Changed this
-                label: 'Analytics', // Changed this
+                icon: Icon(Icons.analytics_outlined),
+                activeIcon: Icon(Icons.analytics),
+                label: 'Analytics',
               ),
               BottomNavigationBarItem(
                 icon: Icon(Icons.credit_card_outlined),
@@ -48,9 +48,9 @@ class MainScaffold extends StatelessWidget {
                 label: 'Cards',
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.more_horiz_outlined),
-                activeIcon: Icon(Icons.more_horiz),
-                label: 'More',
+                icon: Icon(Icons.account_balance_outlined), // Loans icon
+                activeIcon: Icon(Icons.account_balance),
+                label: 'Loans', // Changed from 'More'
               ),
             ],
           ),
@@ -85,7 +85,7 @@ class MainScaffold extends StatelessWidget {
         context.go('/credit-cards');
         break;
       case 4:
-        context.go('/more');
+        context.go('/loans');
         break;
     }
   }
