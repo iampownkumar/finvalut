@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../core/providers/app_state_provider.dart';
+import 'package:finvault/core/providers/app_state_provider.dart';
+import 'package:finvault/features/transactions/presentation/pages/add_edit_transaction_page.dart';
 
 class MainScaffold extends StatelessWidget {
   final Widget child;
@@ -55,9 +56,11 @@ class MainScaffold extends StatelessWidget {
           ),
           floatingActionButton: FloatingActionButton(
             onPressed: () {
-              // TODO: Implement quick add transaction
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Quick Add - Coming in Phase 2!')),
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const AddEditTransactionPage(),
+                ),
               );
             },
             child: const Icon(Icons.add),

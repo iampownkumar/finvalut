@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../../../../core/providers/theme_provider.dart';
+import 'package:finvault/core/providers/theme_provider.dart';
 
 class MorePage extends StatelessWidget {
   const MorePage({super.key});
