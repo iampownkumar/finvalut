@@ -222,13 +222,13 @@ class _AddEditTransactionPageState extends State<AddEditTransactionPage> {
                       border: OutlineInputBorder(),
                     ),
                     items: _accounts.map((account) {
-                      return DropdownMenuItem(
+                      return DropdownMenuItem<String>(
                         value: account.id,
                         child: Row(
                           children: [
                             Container(
-                              width: 32,
-                              height: 32,
+                              width: 20,
+                              height: 20,
                               decoration: BoxDecoration(
                                 color: account.color != null
                                     ? Color(int.parse(account.color!
@@ -242,7 +242,7 @@ class _AddEditTransactionPageState extends State<AddEditTransactionPage> {
                               ),
                               child: Icon(
                                 _getAccountIcon(account.type),
-                                size: 16,
+                                size: 14,
                                 color: account.color != null
                                     ? Color(int.parse(account.color!
                                         .replaceFirst('#', '0xFF')))
@@ -250,23 +250,26 @@ class _AddEditTransactionPageState extends State<AddEditTransactionPage> {
                               ),
                             ),
                             const SizedBox(width: 12),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(account.name),
-                                Text(
-                                  '₹${account.balance.toStringAsFixed(2)}',
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodySmall
-                                      ?.copyWith(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .onSurface
-                                            .withOpacity(0.7),
-                                      ),
-                                ),
-                              ],
+                            SizedBox(
+                              width: 140,
+                              child: Text(
+                                account.name,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              '₹${account.balance.toStringAsFixed(2)}',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodySmall
+                                  ?.copyWith(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurface
+                                        .withOpacity(0.7),
+                                  ),
                             ),
                           ],
                         ),
