@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:finvault/core/providers/theme_provider.dart';
+import 'package:go_router/go_router.dart';
+import '../../../../../core/providers/theme_provider.dart';
 
 class MorePage extends StatelessWidget {
   const MorePage({super.key});
@@ -17,6 +18,14 @@ class MorePage extends StatelessWidget {
           Card(
             child: Column(
               children: [
+                ListTile(
+                  leading: const Icon(Icons.analytics),
+                  title: const Text('Analytics'),
+                  subtitle: const Text('View financial insights and trends'),
+                  trailing: const Icon(Icons.arrow_forward_ios),
+                  onTap: () => context.go('/analytics'), // Add this
+                ),
+                const Divider(height: 1),
                 ListTile(
                   leading: const Icon(Icons.dark_mode),
                   title: const Text('Dark Mode'),
@@ -37,14 +46,14 @@ class MorePage extends StatelessWidget {
                 ListTile(
                   leading: const Icon(Icons.backup),
                   title: const Text('Backup & Restore'),
-                  subtitle: const Text('Coming in Phase 3'),
+                  subtitle: const Text('Coming in Phase 3 Batch 3'),
                   onTap: () {},
                 ),
                 const Divider(height: 1),
                 ListTile(
                   leading: const Icon(Icons.settings),
                   title: const Text('Settings'),
-                  subtitle: const Text('Coming in Phase 2'),
+                  subtitle: const Text('Coming soon'),
                   onTap: () {},
                 ),
               ],

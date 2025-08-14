@@ -1,12 +1,14 @@
 import 'package:go_router/go_router.dart';
+import 'package:flutter/material.dart';
 
-import 'package:finvault/features/home/presentation/pages/home_page.dart';
-import 'package:finvault/features/accounts/presentation/pages/accounts_page.dart';
-import 'package:finvault/features/categories/presentation/pages/categories_page.dart';
-import 'package:finvault/features/credit_cards/presentation/pages/credit_cards_page.dart';
-import 'package:finvault/features/more/presentation/pages/more_page.dart';
-import 'package:finvault/features/transactions/presentation/pages/add_edit_transaction_page.dart';
-import 'package:finvault/shared/presentation/widgets/main_scaffold.dart';
+import '../../features/home/presentation/pages/home_page.dart';
+import '../../features/accounts/presentation/pages/accounts_page.dart';
+import '../../features/categories/presentation/pages/categories_page.dart';
+import '../../features/credit_cards/presentation/pages/credit_cards_page.dart';
+import '../../features/more/presentation/pages/more_page.dart';
+import '../../features/analytics/presentation/pages/analytics_page.dart'; // Add this
+import '../../features/transactions/presentation/pages/add_edit_transaction_page.dart';
+import '../../shared/presentation/widgets/main_scaffold.dart';
 
 class AppRouter {
   static final GoRouter router = GoRouter(
@@ -38,6 +40,11 @@ class AppRouter {
             builder: (context, state) => const CreditCardsPage(),
           ),
           GoRoute(
+            path: '/analytics', // Add this route
+            name: 'analytics',
+            builder: (context, state) => const AnalyticsPage(),
+          ),
+          GoRoute(
             path: '/more',
             name: 'more',
             builder: (context, state) => const MorePage(),
@@ -54,7 +61,6 @@ class AppRouter {
         path: '/transaction/edit/:id',
         name: 'edit-transaction',
         builder: (context, state) {
-          // TODO: Load transaction by ID in Phase 3
           return const AddEditTransactionPage();
         },
       ),

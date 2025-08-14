@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:finvault/core/providers/app_state_provider.dart';
-import 'package:finvault/features/transactions/presentation/pages/add_edit_transaction_page.dart';
+import '../../../core/providers/app_state_provider.dart';
+import '../../../features/transactions/presentation/pages/add_edit_transaction_page.dart';
 
 class MainScaffold extends StatelessWidget {
   final Widget child;
@@ -38,9 +38,9 @@ class MainScaffold extends StatelessWidget {
                 label: 'Accounts',
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.category_outlined),
-                activeIcon: Icon(Icons.category),
-                label: 'Categories',
+                icon: Icon(Icons.analytics_outlined), // Changed this
+                activeIcon: Icon(Icons.analytics), // Changed this
+                label: 'Analytics', // Changed this
               ),
               BottomNavigationBarItem(
                 icon: Icon(Icons.credit_card_outlined),
@@ -55,8 +55,8 @@ class MainScaffold extends StatelessWidget {
             ],
           ),
           floatingActionButton: FloatingActionButton(
-            onPressed: () {
-              Navigator.push(
+            onPressed: () async {
+              final result = await Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (context) => const AddEditTransactionPage(),
@@ -79,7 +79,7 @@ class MainScaffold extends StatelessWidget {
         context.go('/accounts');
         break;
       case 2:
-        context.go('/categories');
+        context.go('/analytics'); // Changed from categories
         break;
       case 3:
         context.go('/credit-cards');
