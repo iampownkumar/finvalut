@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
-
-import '../../../core/providers/app_state_provider.dart';
-import '../../../features/transactions/presentation/pages/add_edit_transaction_page.dart';
+import 'package:finvault/core/providers/app_state_provider.dart';
+import 'package:finvault/features/transactions/presentation/pages/add_edit_transaction_page.dart';
 
 class MainScaffold extends StatelessWidget {
   final Widget child;
@@ -48,20 +47,29 @@ class MainScaffold extends StatelessWidget {
                 label: 'Cards',
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.account_balance_outlined), // Loans icon
+                icon: Icon(Icons.account_balance_outlined),
                 activeIcon: Icon(Icons.account_balance),
-                label: 'Loans', // Changed from 'More'
+                label: 'Loans',
               ),
             ],
           ),
           floatingActionButton: FloatingActionButton(
             onPressed: () async {
-              final result = await Navigator.push(
-                context,
+              // Navigate to add transaction page with proper back navigation
+              final result = await Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (context) => const AddEditTransactionPage(),
                 ),
               );
+
+              // If transaction was added successfully, refresh home data
+              if (result == true) {
+                // Trigger a rebuild of current page
+                if (appState.currentBottomNavIndex == 0) {
+                  // We're on home page, refresh it
+                  context.go('/home');
+                }
+              }
             },
             child: const Icon(Icons.add),
           ),
@@ -73,7 +81,7 @@ class MainScaffold extends StatelessWidget {
   void _navigateToPage(BuildContext context, int index) {
     switch (index) {
       case 0:
-        context.go('/home'); // Make sure this matches your route
+        context.go('/home');
         break;
       case 1:
         context.go('/accounts');
