@@ -1,6 +1,8 @@
 import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
 
+import 'package:finvault/features/splash/presentation/pages/splash_page.dart';
+import 'package:finvault/features/onboarding/presentation/pages/welcome_page.dart';
 import 'package:finvault/features/home/presentation/pages/home_page.dart';
 import 'package:finvault/features/accounts/presentation/pages/accounts_page.dart';
 import 'package:finvault/features/accounts/presentation/pages/account_details_page.dart';
@@ -15,7 +17,7 @@ import 'package:finvault/shared/presentation/widgets/main_scaffold.dart';
 
 class AppRouter {
   static final GoRouter router = GoRouter(
-    initialLocation: '/home',
+    initialLocation: '/splash', // Start with splash screen
     errorBuilder: (context, state) => Scaffold(
       appBar: AppBar(title: const Text('Page Not Found')),
       body: Center(
@@ -43,6 +45,21 @@ class AppRouter {
       ),
     ),
     routes: [
+      // Splash Screen (outside shell - full screen)
+      GoRoute(
+        path: '/splash',
+        name: 'splash',
+        builder: (context, state) => const SplashPage(),
+      ),
+
+      // Welcome Screen (outside shell - full screen)
+      GoRoute(
+        path: '/welcome',
+        name: 'welcome',
+        builder: (context, state) => const WelcomePage(),
+      ),
+
+      // Main app routes (inside shell with bottom navigation)
       ShellRoute(
         builder: (context, state, child) {
           return MainScaffold(child: child);
@@ -90,6 +107,7 @@ class AppRouter {
           ),
         ],
       ),
+
       // Full screen routes (outside shell)
       GoRoute(
         path: '/transaction/add',
@@ -101,7 +119,6 @@ class AppRouter {
         name: 'edit-transaction',
         builder: (context, state) {
           final transactionId = state.pathParameters['id'];
-          // TODO: Load transaction by ID and pass to edit page
           return const AddEditTransactionPage();
         },
       ),
