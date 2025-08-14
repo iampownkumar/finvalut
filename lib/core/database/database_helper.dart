@@ -25,6 +25,101 @@ class DatabaseHelper {
     );
   }
 
+  // Future _createDB(Database db, int version) async {
+  //   const idType = 'TEXT PRIMARY KEY';
+  //   const textType = 'TEXT NOT NULL';
+  //   const textTypeNullable = 'TEXT';
+  //   const integerType = 'INTEGER NOT NULL';
+  //   const realType = 'REAL NOT NULL';
+  //   const boolType = 'INTEGER NOT NULL';
+
+  //   // Accounts table
+  //   await db.execute('''
+  //   CREATE TABLE accounts (
+  //     id $idType,
+  //     name $textType,
+  //     type $textType,
+  //     currency $textType,
+  //     balance $realType,
+  //     icon $textTypeNullable,
+  //     color $textTypeNullable,
+  //     isActive $boolType,
+  //     createdAt $textType,
+  //     updatedAt $textType
+  //   )
+  // ''');
+
+  //   // Categories table
+  //   await db.execute('''
+  //   CREATE TABLE categories (
+  //     id $idType,
+  //     name $textType,
+  //     type $textType,
+  //     icon $textTypeNullable,
+  //     color $textTypeNullable,
+  //     isActive $boolType,
+  //     createdAt $textType,
+  //     updatedAt $textType
+  //   )
+  // ''');
+
+  //   // Transactions table
+  //   await db.execute('''
+  //   CREATE TABLE transactions (
+  //     id $idType,
+  //     accountId $textType,
+  //     categoryId $textType,
+  //     amount $realType,
+  //     type $textType,
+  //     description $textTypeNullable,
+  //     date $textType,
+  //     createdAt $textType,
+  //     updatedAt $textType,
+  //     FOREIGN KEY (accountId) REFERENCES accounts (id),
+  //     FOREIGN KEY (categoryId) REFERENCES categories (id)
+  //   )
+  // ''');
+
+  //   // Credit Cards table
+  //   await db.execute('''
+  //   CREATE TABLE credit_cards (
+  //     id $idType,
+  //     bankName $textType,
+  //     cardNumber $textType,
+  //     cardLimit $realType,
+  //     usedAmount $realType,
+  //     billDate $integerType,
+  //     paymentDate $integerType,
+  //     isActive $boolType,
+  //     createdAt $textType,
+  //     updatedAt $textType
+  //   )
+  // ''');
+
+  //   // Loans table
+  //   await db.execute('''
+  //   CREATE TABLE loans (
+  //     id $idType,
+  //     title $textType,
+  //     amount $realType,
+  //     type $textType,
+  //     interestRate $realType,
+  //     startDate $textType,
+  //     endDate $textType,
+  //     monthlyPayment $realType,
+  //     remainingAmount $realType,
+  //     isActive $boolType,
+  //     createdAt $textType,
+  //     updatedAt $textType
+  //   )
+  // ''');
+
+  //   // Insert sample data
+  //   await _insertSampleData(db);
+  // }
+
+  // Find the _createDB method and modify it like this:
+
   Future _createDB(Database db, int version) async {
     const idType = 'TEXT PRIMARY KEY';
     const textType = 'TEXT NOT NULL';
@@ -114,9 +209,109 @@ class DatabaseHelper {
     )
   ''');
 
-    // Insert sample data
-    await _insertSampleData(db);
+    // Insert only essential categories - no sample transactions/accounts
+    await _insertEssentialCategories(db);
   }
+
+  Future<void> _insertEssentialCategories(Database db) async {
+    final now = DateTime.now().toIso8601String();
+
+    // Essential expense categories
+    final expenseCategories = [
+      {
+        'id': 'cat_food',
+        'name': 'Food & Dining',
+        'type': 'expense',
+        'icon': 'restaurant',
+        'color': '#EF4444'
+      },
+      {
+        'id': 'cat_transport',
+        'name': 'Transportation',
+        'type': 'expense',
+        'icon': 'directions_car',
+        'color': '#F59E0B'
+      },
+      {
+        'id': 'cat_shopping',
+        'name': 'Shopping',
+        'type': 'expense',
+        'icon': 'shopping_bag',
+        'color': '#8B5CF6'
+      },
+      {
+        'id': 'cat_entertainment',
+        'name': 'Entertainment',
+        'type': 'expense',
+        'icon': 'movie',
+        'color': '#F97316'
+      },
+      {
+        'id': 'cat_healthcare',
+        'name': 'Healthcare',
+        'type': 'expense',
+        'icon': 'health',
+        'color': '#EC4899'
+      },
+      {
+        'id': 'cat_utilities',
+        'name': 'Bills & Utilities',
+        'type': 'expense',
+        'icon': 'receipt',
+        'color': '#6B7280'
+      },
+    ];
+
+    // Essential income categories
+    final incomeCategories = [
+      {
+        'id': 'cat_salary',
+        'name': 'Salary',
+        'type': 'income',
+        'icon': 'work',
+        'color': '#10B981'
+      },
+      {
+        'id': 'cat_freelance',
+        'name': 'Freelance',
+        'type': 'income',
+        'icon': 'work',
+        'color': '#059669'
+      },
+      {
+        'id': 'cat_investment',
+        'name': 'Investment',
+        'type': 'income',
+        'icon': 'trending_up',
+        'color': '#0D9488'
+      },
+      {
+        'id': 'cat_other_income',
+        'name': 'Other Income',
+        'type': 'income',
+        'icon': 'attach_money',
+        'color': '#16A34A'
+      },
+    ];
+
+    // Insert categories
+    for (final category in [...expenseCategories, ...incomeCategories]) {
+      await db.insert('categories', {
+        ...category,
+        'isActive': 1,
+        'createdAt': now,
+        'updatedAt': now,
+      });
+    }
+  }
+
+// COMMENT OUT OR REMOVE the old _insertSampleData method entirely
+/*
+Future<void> _insertSampleData(Database db) async {
+  // This method is removed for production build
+  // Users will start with clean data
+}
+*/
 
   Future<void> _insertSampleData(Database db) async {
     final now = DateTime.now().toIso8601String();
