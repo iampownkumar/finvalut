@@ -13,10 +13,11 @@ dependencies:
   
   # Database
   sqflite: ^2.3.0
-  sqflite_common_ffi: ^2.3.0  # Add this line
+  sqflite_common_ffi: ^2.3.0
   hive: ^2.2.3
   hive_flutter: ^1.1.0
   path_provider: ^2.1.1
+  
   # State Management
   provider: ^6.0.5
   
@@ -31,6 +32,17 @@ dependencies:
   shared_preferences: ^2.2.2
   intl: ^0.18.1
   uuid: ^4.1.0
+  
+  # Phase 3 - Charts & Analytics
+  fl_chart: ^0.66.0
+  
+  # Phase 3 - Export & File Operations
+  csv: ^5.0.2
+  pdf: ^3.10.7
+  printing: ^5.12.0
+  file_picker: ^6.1.1
+  share_plus: ^7.2.1
+  permission_handler: ^11.1.0
 
 dev_dependencies:
   flutter_test:
