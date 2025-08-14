@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import 'package:finvault/features/home/presentation/pages/home_page.dart';
 import 'package:finvault/features/accounts/presentation/pages/accounts_page.dart';
+import 'package:finvault/features/accounts/presentation/pages/account_details_page.dart';
 import 'package:finvault/features/categories/presentation/pages/categories_page.dart';
 import 'package:finvault/features/credit_cards/presentation/pages/credit_cards_page.dart';
 import 'package:finvault/features/analytics/presentation/pages/analytics_page.dart';
@@ -15,7 +16,6 @@ import 'package:finvault/shared/presentation/widgets/main_scaffold.dart';
 class AppRouter {
   static final GoRouter router = GoRouter(
     initialLocation: '/home',
-    // Add error handling for unknown routes
     errorBuilder: (context, state) => Scaffold(
       appBar: AppBar(title: const Text('Page Not Found')),
       body: Center(
@@ -78,13 +78,15 @@ class AppRouter {
             name: 'loans',
             builder: (context, state) => const LoansPage(),
           ),
-
-          // ADD MISSING TRANSACTIONS ROUTE
           GoRoute(
             path: '/transactions',
             name: 'transactions',
-            builder: (context, state) =>
-                const TransactionsListPage(), // We'll create this
+            builder: (context, state) => const TransactionsListPage(),
+          ),
+          GoRoute(
+            path: '/more',
+            name: 'more',
+            builder: (context, state) => const MorePage(),
           ),
         ],
       ),

@@ -3,6 +3,7 @@ import 'package:finvault/core/models/account.dart';
 import 'package:finvault/core/services/account_service.dart';
 import 'package:finvault/features/accounts/presentation/widgets/account_card.dart';
 import 'package:finvault/features/accounts/presentation/widgets/add_edit_account_dialog.dart';
+import 'package:finvault/features/accounts/presentation/pages/account_details_page.dart';
 
 class AccountsPage extends StatefulWidget {
   const AccountsPage({super.key});
@@ -210,11 +211,14 @@ class _AccountsPageState extends State<AccountsPage> {
     );
   }
 
+  // Replace the _viewAccountDetails method in your accounts_page.dart:
+
   void _viewAccountDetails(Account account) {
-    // TODO: Navigate to account details page in Phase 3
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-          content: Text('Account details for ${account.name} - Coming soon!')),
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AccountDetailsPage(account: account),
+      ),
     );
   }
 }
