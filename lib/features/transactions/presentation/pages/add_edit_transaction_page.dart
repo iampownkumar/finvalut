@@ -7,11 +7,13 @@ import 'package:finvault/core/models/category.dart';
 import 'package:finvault/core/services/transaction_service.dart';
 import 'package:finvault/core/services/account_service.dart';
 import 'package:finvault/core/services/category_service.dart';
+import 'package:finvault/core/utils/currency_utils.dart';
 
 class AddEditTransactionPage extends StatefulWidget {
   final Transaction? transaction;
+  final String? initialType;
 
-  const AddEditTransactionPage({super.key, this.transaction});
+  const AddEditTransactionPage({super.key, this.transaction, this.initialType});
 
   @override
   State<AddEditTransactionPage> createState() => _AddEditTransactionPageState();
@@ -38,6 +40,10 @@ class _AddEditTransactionPageState extends State<AddEditTransactionPage> {
   @override
   void initState() {
     super.initState();
+    if (widget.transaction == null &&
+        (widget.initialType == 'income' || widget.initialType == 'expense')) {
+      _selectedType = widget.initialType!;
+    }
     _loadData();
     if (widget.transaction != null) {
       _initializeWithTransaction();
@@ -109,13 +115,7 @@ class _AddEditTransactionPageState extends State<AddEditTransactionPage> {
     return PopScope(
       canPop: true,
       onPopInvoked: (didPop) {
-        if (didPop) {
-          // Navigate back to home if this was opened from FAB or notification
-          Navigator.of(context).pushNamedAndRemoveUntil(
-            '/home',
-            (route) => false,
-          );
-        }
+        // no-op: let Navigator handle back stack
       },
       child: Scaffold(
         appBar: AppBar(
@@ -190,7 +190,7 @@ class _AddEditTransactionPageState extends State<AddEditTransactionPage> {
                           focusNode: _amountFocusNode,
                           decoration: InputDecoration(
                             labelText: 'Amount',
-                            prefixText: '₹ ',
+                            prefixText: '${CurrencyUtils.symbolFor()} ',
                             border: const OutlineInputBorder(),
                             prefixIcon: Icon(
                               _selectedType == 'expense'
@@ -499,11 +499,8 @@ class _AddEditTransactionPageState extends State<AddEditTransactionPage> {
     // Close keyboard if open
     FocusScope.of(context).unfocus();
 
-    // Navigate back to home screen
-    Navigator.of(context).pushNamedAndRemoveUntil(
-      '/',
-      (route) => false,
-    );
+    // Pop back to previous screen
+    Navigator.of(context).pop();
   }
 
   void _saveTransaction() async {
@@ -546,11 +543,8 @@ class _AddEditTransactionPageState extends State<AddEditTransactionPage> {
             ),
           );
 
-          // Navigate back to home screen and clear navigation stack
-          Navigator.of(context).pushNamedAndRemoveUntil(
-            '/',
-            (route) => false,
-          );
+          // Close and signal success to previous screen
+          Navigator.of(context).pop(true);
         }
       } catch (e) {
         if (mounted) {
@@ -600,11 +594,8 @@ class _AddEditTransactionPageState extends State<AddEditTransactionPage> {
             ),
           );
 
-          // Navigate back to home screen
-          Navigator.of(context).pushNamedAndRemoveUntil(
-            '/',
-            (route) => false,
-          );
+          // Close and signal success to previous screen
+          Navigator.of(context).pop(true);
         }
       } catch (e) {
         if (mounted) {

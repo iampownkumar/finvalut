@@ -5,6 +5,7 @@ import 'package:finvault/core/models/transaction.dart';
 import 'package:finvault/core/services/account_service.dart';
 import 'package:finvault/core/services/transaction_service.dart';
 import 'package:finvault/features/transactions/presentation/pages/add_edit_transaction_page.dart';
+import 'package:finvault/core/utils/currency_utils.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -77,7 +78,7 @@ class _HomePageState extends State<HomePage> {
                     _QuickStats(
                         stats: monthlyStats, accountCount: accounts.length),
                     const SizedBox(height: 20),
-                    _QuickActions(),
+                    _QuickActions(onTransactionAdded: () { _loadData(); }),
                     const SizedBox(height: 20),
                     _RecentTransactions(
                       transactions: recentTransactions,
@@ -127,7 +128,7 @@ class _BalanceCard extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              '₹${totalBalance.toStringAsFixed(2)}',
+              CurrencyUtils.formatAmount(totalBalance),
               style: Theme.of(context).textTheme.headlineLarge?.copyWith(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
@@ -301,7 +302,7 @@ class _StatCard extends StatelessWidget {
                         style: Theme.of(context).textTheme.bodyMedium,
                       ),
                       Text(
-                        '₹${amount.abs().toStringAsFixed(2)}',
+                        CurrencyUtils.formatAmount(amount.abs()),
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
                               color: color,
                               fontWeight: FontWeight.bold,
@@ -327,7 +328,7 @@ class _StatCard extends StatelessWidget {
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
                   Text(
-                    '₹${amount.toStringAsFixed(2)}',
+                    CurrencyUtils.formatAmount(amount),
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                           color: color,
                           fontWeight: FontWeight.bold,
@@ -341,6 +342,9 @@ class _StatCard extends StatelessWidget {
 }
 
 class _QuickActions extends StatelessWidget {
+  final VoidCallback onTransactionAdded;
+  const _QuickActions({super.key, required this.onTransactionAdded});
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -376,13 +380,16 @@ class _QuickActions extends StatelessWidget {
     );
   }
 
-  void _navigateToAddTransaction(BuildContext context, String type) {
-    Navigator.push(
+  Future<void> _navigateToAddTransaction(BuildContext context, String type) async {
+    final result = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => const AddEditTransactionPage(),
+        builder: (context) => AddEditTransactionPage(initialType: type),
       ),
     );
+    if (result == true) {
+      onTransactionAdded();
+    }
   }
 }
 
@@ -539,7 +546,7 @@ class _TransactionTile extends StatelessWidget {
             ),
       ),
       trailing: Text(
-        '${transaction.type == 'expense' ? '-' : '+'}₹${transaction.amount.toStringAsFixed(2)}',
+        '${transaction.type == 'expense' ? '-' : '+'}${CurrencyUtils.formatAmount(transaction.amount)}',
         style: TextStyle(
           color: transaction.type == 'expense' ? Colors.red : Colors.green,
           fontWeight: FontWeight.bold,

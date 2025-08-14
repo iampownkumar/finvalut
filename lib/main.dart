@@ -12,6 +12,7 @@ import 'core/providers/theme_provider.dart';
 import 'core/providers/app_state_provider.dart';
 import 'core/routing/app_router.dart';
 import 'core/theme/app_theme.dart';
+import 'core/providers/currency_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -40,9 +41,11 @@ class FinVaultApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
         ChangeNotifierProvider(create: (_) => AppStateProvider()),
+        ChangeNotifierProvider(create: (_) => CurrencyProvider()),
       ],
-      child: Consumer<ThemeProvider>(
-        builder: (context, themeProvider, _) {
+      child: Consumer2<ThemeProvider, CurrencyProvider>(
+        builder: (context, themeProvider, currencyProvider, _) {
+          // Rebuild MaterialApp when theme or currency changes to refresh UI formatting
           return MaterialApp.router(
             title: 'FinVault',
             debugShowCheckedModeBanner: false,

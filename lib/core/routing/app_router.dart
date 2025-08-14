@@ -14,6 +14,7 @@ import 'package:finvault/features/more/presentation/pages/more_page.dart';
 import 'package:finvault/features/transactions/presentation/pages/add_edit_transaction_page.dart';
 import 'package:finvault/features/transactions/presentation/pages/transactions_list_page.dart';
 import 'package:finvault/shared/presentation/widgets/main_scaffold.dart';
+import 'package:finvault/features/settings/presentation/pages/settings_page.dart';
 
 class AppRouter {
   static final GoRouter router = GoRouter(
@@ -104,6 +105,11 @@ class AppRouter {
             path: '/more',
             name: 'more',
             builder: (context, state) => const MorePage(),
+          ),
+          GoRoute(
+            path: '/settings',
+            name: 'settings',
+            builder: (context, state) => const SettingsPage(),
           ),
         ],
       ),
